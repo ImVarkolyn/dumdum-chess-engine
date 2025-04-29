@@ -1,125 +1,17 @@
 import random
 import time
+import multiprocessing
 
-# Depth of algorithm
-set_depth = 4
+# === AI config ===
+set_depth = 5
 max_time_per_move = 9.9  # Each move must be < 10s
 
 # Positive values are good for white, negative for black
 checkmate_points = 100000
 stalemate_points = 0
 
-# piece_scores = {'K': 200.0, 'Q': 9.0, 'R': 5.0, 'B': 3.3, 'N': 3.2, 'P': 1.0}
 piece_scores = {"P": 100, "N": 280, "B": 320, "R": 479, "Q": 929, "K": 60000}
-# piece_positions = {
-#     'wP': [
-#         [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-#         [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0],
-#         [1.0, 1.0, 2.0, 3.0, 3.0, 2.0, 1.0, 1.0],
-#         [0.5, 0.5, 1.0, 2.5, 2.5, 1.0, 0.5, 0.5],
-#         [0.0, 0.0, 0.0, 2.0, 2.0, 0.0, 0.0, 0.0],
-#         [0.5, -0.5, -1.0, 0.0, 0.0, -1.0, -0.5, 0.5],
-#         [0.5, 1.0, 1.0, -2.0, -2.0, 1.0, 1.0, 0.5],
-#         [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
-#     'bP': [
-#         [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-#         [0.5, 1.0, 1.0, -2.0, -2.0, 1.0, 1.0, 0.5],
-#         [0.5, -0.5, -1.0, 0.0, 0.0, -1.0, -0.5, 0.5],
-#         [0.0, 0.0, 0.0, 2.0, 2.0, 0.0, 0.0, 0.0],
-#         [0.5, 0.5, 1.0, 2.5, 2.5, 1.0, 0.5, 0.5],
-#         [1.0, 1.0, 2.0, 3.0, 3.0, 2.0, 1.0, 1.0],
-#         [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0],
-#         [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
-#     'wN': [
-#         [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0],
-#         [-4.0, -2.0, 0.0, 0.0, 0.0, 0.0, -2.0, -4.0],
-#         [-3.0, 0.0, 1.0, 1.5, 1.5, 1.0, 0.0, -3.0],
-#         [-3.0, 0.5, 1.5, 2.0, 2.0, 1.5, 5.0, -30],
-#         [-3.0, 0.0, 1.5, 2.0, 2.0, 1.5, 0, -3.0],
-#         [-3.0, 0.5, 1.0, 1.5, 1.5, 1.0, 5.0, -30],
-#         [-4.0, -2.0, 0.0, 0.5, 0.5, 0.0, -2.0, -4.0],
-#         [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0]],
-#     'bN': [
-#         [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0],
-#         [-.0, -2.0, 0.0, 0.5, 0.5, 0.0, -2.0, -4.0],
-#         [-3.0, 0.5, 1.0, 1.5, 1.5, 1.0, 0.5, -3.0],
-#         [-3.0, 0.0, 1.5, 2.0, 2.0, 1.5, 0.0, -3.0],
-#         [-3.0, 0.5, 1.5, 2.0, 2.0, 1.5, 0.5, -3.0],
-#         [-3.0, 0.0, 1.0, 1.5, 1.5, 1.0, 0.0, -3.0],
-#         [-4.0, -2.0, 0.0, 0.0, 0.0, 0.0, -2.0, -4.0],
-#         [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0]],
-#     'wB': [
-#         [-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0],
-#         [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0],
-#         [-1.0, 0.0, 0.5, 1.0, 1.0, 0.5, 0.0, -1.0],
-#         [-1.0, 0.5, 0.5, 1.0, 1.0, 0.5, 0.5, -1.0],
-#         [-1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, -1.0],
-#         [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0],
-#         [-1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.5, -1.0],
-#         [-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0]],
-#     'bB': [
-#         [-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0],
-#         [-1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.5, -1.0],
-#         [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0],
-#         [-1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, -1.0],
-#         [-1.0, 0.5, 0.5, 1.0, 1.0, 0.5, 0.5, -1.0],
-#         [-1.0, 0.0, 0.5, 1.0, 1.0, 0.5, 0.0, -1.0],
-#         [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0],
-#         [-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0]],
-#     'wR': [
-#         [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-#         [0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5],
-#         [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
-#         [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
-#         [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
-#         [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
-#         [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
-#         [0.0, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0, 0.0]],
-#     'bR': [
-#         [0.0, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0, 0.0],
-#         [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
-#         [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
-#         [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
-#         [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
-#         [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
-#         [0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5],
-#         [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
-#     'wQ': [
-#         [-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0],
-#         [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0],
-#         [-1.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -1.0],
-#         [-0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -0.5],
-#         [0.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -0.5],
-#         [-1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.0, -1.0],
-#         [-1.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, -1.0],
-#         [-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0]],
-#     "bQ": [
-#         [-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0],
-#         [-1.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, -1.0],
-#         [-1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.0, -1.0],
-#         [0.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -0.5],
-#         [-0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -0.5],
-#         [-1.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -1.0],
-#         [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0],
-#         [-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0]],
-#     'wK': [  # Uses chessprogramming.org King middle game values
-#         [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-#         [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-#         [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-#         [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-#         [-2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0],
-#         [-1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0],
-#         [2.0, 2.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0],
-#         [2.0, 3.0, 1.0, 0.0, 0.0, 1.0, 3.0, 2.0]],
-#     'bK': [  # Uses chessprogramming.org King middle game values
-#         [2.0, 3.0, 1.0, 0.0, 0.0, 1.0, 3.0, 2.0],
-#         [2.0, 2.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0],
-#         [-1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0],
-#         [-2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0],
-#         [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-#         [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-#         [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-#         [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0]]}
+
 piece_positions = {
     'wP': [
         [0, 0, 0, 0, 0, 0, 0, 0],
@@ -257,9 +149,7 @@ piece_positions = {
 
 transposition_table = {}
 
-
 def find_best_move(game_state, valid_moves, time_limit=max_time_per_move):
-    """Iterative deepening with time constraint."""
     global next_move
     next_move = None
     start = time.time()
@@ -274,27 +164,81 @@ def find_best_move(game_state, valid_moves, time_limit=max_time_per_move):
     print(f"Move selected in {end - start:.2f} seconds at depth {last_depth}")
     return next_move
 
+# def find_negamax_move_alphabeta(game_state, valid_moves, depth, alpha, beta, turn_multiplier, start_time, time_limit):
+#     global next_move
+#     if time.time() - start_time > time_limit:
+#         return 0  # Abort if over time
+#
+#     board_key = str(game_state.board) + str(game_state.white_to_move)
+#     if board_key in transposition_table and transposition_table[board_key]["depth"] >= depth:
+#         return transposition_table[board_key]["score"]
+#
+#     if depth == 0:
+#         return turn_multiplier * score_board(game_state)
+#
+#     max_score = -checkmate_points
+#     ordered_moves = order_moves(valid_moves)
+#     for move in ordered_moves:
+#         game_state.make_move(move)
+#         next_moves = game_state.get_valid_moves()
+#         score = -find_negamax_move_alphabeta(game_state, next_moves, depth - 1, -beta, -alpha, -turn_multiplier,
+#                                              start_time, time_limit)
+#         game_state.undo_move()
+#
+#         if score > max_score:
+#             max_score = score
+#             if depth == set_depth:
+#                 next_move = move
+#
+#         alpha = max(alpha, score)
+#         if alpha >= beta:
+#             break
+#
+#     transposition_table[board_key] = {"score": max_score, "depth": depth}
+#     return max_score
 
-# === NegaMax with Alpha-Beta + TT + Move Ordering ===
+
+# === NegaMax with Alpha-Beta + Transposition Table + Move Ordering ===
 def find_negamax_move_alphabeta(game_state, valid_moves, depth, alpha, beta, turn_multiplier, start_time, time_limit):
     global next_move
+
     if time.time() - start_time > time_limit:
-        return 0  # Abort if over time
+        return 0
+
+    if depth == 0:
+        return turn_multiplier * score_board(game_state)
 
     board_key = str(game_state.board) + str(game_state.white_to_move)
     if board_key in transposition_table and transposition_table[board_key]["depth"] >= depth:
         return transposition_table[board_key]["score"]
 
-    if depth == 0:
-        return turn_multiplier * score_board(game_state)
+    # === Null Move Pruning ===
+    if depth >= 3 and not game_state.in_check:
+        null_state = game_state.clone()
+        null_state.white_to_move = not null_state.white_to_move
+        null_score = -find_negamax_move_alphabeta(
+            null_state,
+            null_state.get_valid_moves(),
+            depth - 1 - 2,
+            -beta,
+            -beta + 1,
+            -turn_multiplier,
+            start_time,
+            time_limit
+        )
+        if null_score >= beta:
+            return beta
 
     max_score = -checkmate_points
     ordered_moves = order_moves(valid_moves)
     for move in ordered_moves:
         game_state.make_move(move)
         next_moves = game_state.get_valid_moves()
-        score = -find_negamax_move_alphabeta(game_state, next_moves, depth - 1, -beta, -alpha, -turn_multiplier,
-                                             start_time, time_limit)
+        score = -find_negamax_move_alphabeta(
+            game_state, next_moves, depth - 1,
+            -beta, -alpha, -turn_multiplier,
+            start_time, time_limit
+        )
         game_state.undo_move()
 
         if score > max_score:
@@ -310,17 +254,33 @@ def find_negamax_move_alphabeta(game_state, valid_moves, depth, alpha, beta, tur
     return max_score
 
 
+
+
 # === Move Ordering ===
 def order_moves(moves):
+    # Different from evaluation
+    piece_order_values = {
+        "P": 1,
+        "N": 3,
+        "B": 3,
+        "R": 5,
+        "Q": 9,
+        "K": 0
+    }
+
     def move_score(move):
         score = 0
         if move.piece_captured != "--":
-            score += 10 + get_piece_value(move.piece_captured)
+            # MVV-LVA logic: 10 * victim value - attacker value
+            victim_value = piece_order_values.get(move.piece_captured[1], 0)
+            attacker_value = piece_order_values.get(move.piece_moved[1], 0)
+            score += 10 * victim_value - attacker_value
         if move.is_promotion:
-            score += 9
+            score += 20  # Strong bonus for promotions
         return score
 
     return sorted(moves, key=move_score, reverse=True)
+
 
 
 # === Evaluation Function ===

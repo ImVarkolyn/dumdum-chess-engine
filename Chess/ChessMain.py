@@ -29,12 +29,12 @@ def load_images():
         images[piece] = p.transform.smoothscale(p.image.load(os.path.join('images', f'{piece}.png')), (sq_size, sq_size))
 
 def starting_menu(screen):
-    font = p.font.SysFont('Arial', 32, True, False)
-    small_font = p.font.SysFont('Arial', 24, False, False)
+    font = p.font.SysFont('Helvetica', 32, True, False)
+    small_font = p.font.SysFont('Helvetica', 24, False, False)
     clock = p.time.Clock()
     background = p.transform.scale(p.image.load(os.path.join('images', 'background2.png')), (window_width, window_height))
 
-    # Define buttons
+    # Buttons
     button_width = 200
     button_height = 50
     white_button = p.Rect((window_width // 2) - button_width // 2, 200, button_width, button_height)
@@ -75,6 +75,7 @@ def starting_menu(screen):
                     return False, True
         clock.tick(15)
 
+# === MAIN ===
 def main():
     global player_one, player_two
     screen = p.display.set_mode((board_width + move_log_panel_width, board_height))
