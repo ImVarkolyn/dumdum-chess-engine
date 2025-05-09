@@ -1,6 +1,7 @@
 import random
 import time
-import multiprocessing
+
+# from multiprocessing import Pool
 
 # === AI config ===
 set_depth = 5
@@ -164,41 +165,7 @@ def find_best_move(game_state, valid_moves, time_limit=max_time_per_move):
     print(f"Move selected in {end - start:.2f} seconds at depth {last_depth}")
     return next_move
 
-# def find_negamax_move_alphabeta(game_state, valid_moves, depth, alpha, beta, turn_multiplier, start_time, time_limit):
-#     global next_move
-#     if time.time() - start_time > time_limit:
-#         return 0  # Abort if over time
-#
-#     board_key = str(game_state.board) + str(game_state.white_to_move)
-#     if board_key in transposition_table and transposition_table[board_key]["depth"] >= depth:
-#         return transposition_table[board_key]["score"]
-#
-#     if depth == 0:
-#         return turn_multiplier * score_board(game_state)
-#
-#     max_score = -checkmate_points
-#     ordered_moves = order_moves(valid_moves)
-#     for move in ordered_moves:
-#         game_state.make_move(move)
-#         next_moves = game_state.get_valid_moves()
-#         score = -find_negamax_move_alphabeta(game_state, next_moves, depth - 1, -beta, -alpha, -turn_multiplier,
-#                                              start_time, time_limit)
-#         game_state.undo_move()
-#
-#         if score > max_score:
-#             max_score = score
-#             if depth == set_depth:
-#                 next_move = move
-#
-#         alpha = max(alpha, score)
-#         if alpha >= beta:
-#             break
-#
-#     transposition_table[board_key] = {"score": max_score, "depth": depth}
-#     return max_score
-
-
-# === NegaMax with Alpha-Beta + Transposition Table + Move Ordering ===
+# === Negamax with Alpha-Beta + Transposition Table + Move Ordering ===
 def find_negamax_move_alphabeta(game_state, valid_moves, depth, alpha, beta, turn_multiplier, start_time, time_limit):
     global next_move
 
@@ -276,7 +243,7 @@ def order_moves(moves):
             attacker_value = piece_order_values.get(move.piece_moved[1], 0)
             score += 10 * victim_value - attacker_value
         if move.is_promotion:
-            score += 20  # Strong bonus for promotions
+            score += 20
         return score
 
     return sorted(moves, key=move_score, reverse=True)

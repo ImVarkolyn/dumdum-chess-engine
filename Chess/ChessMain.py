@@ -129,11 +129,6 @@ def main():
                         if not move_made:
                             player_clicks = [square_selected]
             elif event.type == p.KEYDOWN:
-                if event.key == p.K_z:
-                    game_state.undo_move()
-                    move_made = True
-                    animate = False
-                    game_over = False
                 if event.key == p.K_r:
                     game_state = ChessEngine.GameState()
                     valid_moves = game_state.get_valid_moves()

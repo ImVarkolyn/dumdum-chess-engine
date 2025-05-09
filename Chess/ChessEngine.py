@@ -1,5 +1,7 @@
+import chess
+import random
 from Chess import ChessMain
-
+from Chess import ChessAI
 
 class GameState:
     def __init__(self):
@@ -112,7 +114,7 @@ class GameState:
         self.white_to_move = not self.white_to_move  # Switches turns
 
     def undo_move(self):
-        if len(self.move_log) != 0:  # Makes sure that there is a move to undo
+        if len(self.move_log) != 0:
             move = self.move_log.pop()
             self.board[move.start_row][move.start_col] = move.piece_moved
             self.board[move.end_row][move.end_col] = move.piece_captured
@@ -150,6 +152,27 @@ class GameState:
 
             self.checkmate = False
             self.stalemate = False
+
+    def clone(self):
+        new_state = GameState()
+        new_state.board = [row[:] for row in self.board]
+        new_state.white_to_move = self.white_to_move
+        new_state.move_log = self.move_log.copy()
+        new_state.white_king_location = self.white_king_location
+        new_state.black_king_location = self.black_king_location
+        new_state.checkmate = self.checkmate
+        new_state.stalemate = self.stalemate
+        new_state.in_check = self.in_check
+        new_state.pins = self.pins.copy()
+        new_state.checks = self.checks.copy()
+        new_state.en_passant_possible = self.en_passant_possible
+        new_state.en_passant_possible_log = self.en_passant_possible_log.copy()
+        new_state.white_castle_king_side = self.white_castle_king_side
+        new_state.white_castle_queen_side = self.white_castle_queen_side
+        new_state.black_castle_king_side = self.black_castle_king_side
+        new_state.black_castle_queen_side = self.black_castle_queen_side
+        new_state.castle_rights_log = self.castle_rights_log.copy()
+        return new_state
 
     def get_valid_moves(self):
         valid_moves = []
