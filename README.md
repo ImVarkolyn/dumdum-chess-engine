@@ -16,7 +16,7 @@ The engine’s core functions are divided across three modules:
 - Standard Chess Rules: The engine handles all standard chess moves, including special moves such as castling, en passant and pawn promotion. It tracks game state (check, checkmate, stalemate, castle rights) and maintains move history
 
 AI Move Selection: The AI, implemented in ChessAI.py, uses advanced algorithms to select moves within a 10s time limit:
-- Negamax with Alpha-Beta Pruning
+- Negamax with Alpha-Beta Pruning: The core search algorithm which explores the game tree to a specified depth. Alpha-beta pruning reduces the number of nodes evaluated by cutting off branches that won’t affect the final decision.
 - Move Ordering + MVV-LVA (Most Valuable Victim, Least Valuable Attacker): Prioritizes captures of high-value pieces by low-value attackers.
 - Transposition Table: Stores previously evaluated positions to avoid redundant calculations
 - Null Move Pruning: Reduces search depth in non-critical positions by assuming the opponent can skip a move
