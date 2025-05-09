@@ -22,6 +22,11 @@ AI Move Selection: The AI, implemented in ChessAI.py, uses advanced algorithms t
 - Null Move Pruning: Reduces search depth in non-critical positions by assuming the opponent can skip a move
 - Evaluation Function: Combines material balance with piece-square tables to favor strategic piece placement.
 
+## Installation
+- Clone the repository
+- Install dependencies with command "pip install -r requirements.txt"
+- Run ChessMain.py
+ 
 ## Notes
 - Press `r` to restart the game.
 
